@@ -2,38 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllActivities, postNewActivity, updateActivity, publicRoutinesWithActivity } from '../api';
 
-export const allActivities = async ({ token }) => {
+export const AllActivities = ({ token }) => {
     const [activities, setActivities] = useState([]);
     const [search, setSearch] = useState("");
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate("/users");
-
-    const handleSearch = (event) => {
-        e.preventDefault();
-        const searchActivity = event.target.value;
-        setSearch(searchText);
-        setSearching(true);
-            if (searchText === "") {
-                setSearching(false);
-            };
-    };
-    const getSearchActivity = (search, activities) => {
-        return activities.filter((activity) => activity.title.includes(search));
-    };
-    const filterActivities = getSearchActivity(search, activities);
+    const [searching, setSearching] = useState(false);
+    const [addActivity, setAddActivity] = useState(false);
 
     useEffect(() => {
-        async function getActivities() {
-            const data = await fetchActivities()
-            setActivities(data)
-            setLoading(false)
+        async function fetchActivities() {
+            try{
+                const data = await getAllActivities();
+                setActivities(data);
+            }   catch (error) {
+                console.error("Error Fetching Activities:", error);
+            }
         }
-        getActivities()
-    }, [])
+        fetchActivities();
+    }, []);
+
+    useEffect(() => {
+        if (token.length > 0) {
+            setAddActivity(true);
+        }
+    }, [token]);
+
+    const handleSearch = (event) => {
+        const searchText = event.target.value;
+        setSearch(searchText);
+        setSearching(searchText !== "");
+    };
+
+    const searchActivity = (search, activities) => {
+        return activities.filter((activity) => activity.title.includes(search));
+    };
+    const filteredActivities = searchActivity(search, activities);
 
     return(
         <>
-            {addPost === true && <Link to="/activities">Post Activity</Link>}
+            {addActivity && <Link to="/activities/add">Post New Activity</Link>}
             <label htmlFor="search">Search for Activity</label>
             <input
                 type="text"
@@ -41,10 +47,10 @@ export const allActivities = async ({ token }) => {
                 value={search}
                 onChange={handleSearch}
             />
-            {searching === true && (
+            {searching && (
                 <div>
-                    {filterActivities.map((value) => (
-                        <h1 key={value.title}>{value.title}</h1>
+                    {filteredActivities.map((activity) => (
+                        <h1 key={activity.title}>{activity.title}</h1>
                     ))}
                 </div>
             )}
@@ -52,17 +58,29 @@ export const allActivities = async ({ token }) => {
     );
 };
 
-export const addNewActivity = ({ token }) => {
+export const AddNewActivity = () => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const history = useHistory();
+    const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        createActivity();
-        setTitle("");
-        setDescription("");
-        history.push("/activities");
+        const checkActivityExists = existingActivities.filter(activity => activity.title === title).length > 0;
+        if (checkActivityExists) {
+            setError("An activity with this title already exists.");
+            return;
+        }
+
+        try {
+            const response = await postNewActivity({title, description});
+            const newToken = response.token;
+            localStorage.setItem("token", newToken);
+            setTitle("");
+            setDescription("");
+            navigate("/activities");
+        }   catch (error) {
+            console.error("New Activity Post Failed!", error);
+        }
     };
 
     return (
@@ -71,18 +89,19 @@ export const addNewActivity = ({ token }) => {
             <label htmlFor="title">Activity Name</label>
             <input
                 type="text"
-                name="Activity Name"
+                name="title"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
             ></input>
             <label htmlFor="description">Describe your activity</label>
             <input
                 type="text"
-                name="Activity Description"
+                name="description"
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
             ></input>
-            <button type="post">Post Activity</button>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            <button type="submit">Post Activity</button>
         </form>
     );
 };

@@ -3,10 +3,11 @@ import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 import {
     Navbar,
+    Profile,
     renderUsers,
     renderActivities,
     renderRoutines,
-    renderRoutine_Activities
+    RenderRoutine_Activities
 } from "./components";
 
 const App = () => {
@@ -28,9 +29,10 @@ const App = () => {
                 <Routes>
                     <Route path="/"></Route>
                     <Route exact path="/register"><Register setToken={setToken} /></Route>
-                    <Route exact path="/login"><renderUsers setToken={setToken} /></Route>
-                    <Route exact path="/routines"><renderRoutines token={token} user={user} setUser={setUser} routines={routines} setRoutines={setRoutines} userRoutines={userRoutines} setUserRoutines={setUserRoutines} /></Route>
-                    <Route exact path="/activities"><renderActivities token={token} activities={activities} setActivities={setActivities} /></Route>
+                    <Route exact path="/login"><RenderUsers setToken={setToken} /></Route>
+                    <Route exact path="/profile"><Profile token={token} user={user} setUser={setUser} activities={activities} setActivities={setActivities} routines={routines} setRoutines={setRoutines} userRoutines={userRoutines} setUserRoutines={setUserRoutines} /></Route>
+                    <Route exact path="/routines"><RenderRoutines token={token} user={user} setUser={setUser} routines={routines} setRoutines={setRoutines} userRoutines={userRoutines} setUserRoutines={setUserRoutines} /></Route>
+                    <Route exact path="/activities"><RenderActivities token={token} activities={activities} setActivities={setActivities} /></Route>
                 </Routes>
             </div>
         </BrowserRouter>

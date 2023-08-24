@@ -1,66 +1,77 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { registerUser, userLogin } from "../api";
 
-export const registerUser = () => {
+export const Register = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const navigate = useNavigate('/login');
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
         setUsername(event.target.value);
     };
     
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log(username);
-        setUsername("");
-        setPassword("");
-        console.log(password);
-        history.push("/users");
+        try{
+            await registerUser(username, password);
+            console.log("Registered Successfully.");
+            setUsername("");
+            setPassword("");        
+            navigate("/login");
+        }   catch (error) {
+            console.error("Registration failed:", error);
+        }
     };
 
     return (
         <div id="container">
             <div id="navbar">Create Account</div>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Username:</label>
-                <input
-                    type="text"
-                    name="username"
-                    value={username}
-                    onChange={handleChange}
-                />
-                <label htmlFor="password">Password:</label>
-                <input
-                    type="password"
-                    name="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)} 
-                />
+                <label htmlFor="username">Username:
+                    <input
+                        type="text"
+                        name="username"
+                        value={username}
+                        onChange={handleChange}
+                    />
+                </label>
+                <label htmlFor="password">Password:
+                    <input
+                        type="password"
+                        name="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)} 
+                    />
+                </label>
                 <button type="submit">Submit</button>
             </form>
         </div>
     );
 };
 
-export const userLogin = ({setToken}) => {
+export const Login = ({setToken}) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const history = useHistory();
+    const navigate = useNavigate();
 
     const handleChange = (event) => {
-        event.preventDefault();
-        if (!username || !password) {
-            return;
-        }
+        setUsername(event.target.value);
     };
 
-    const handleSubmit = (event) => {
-        console.log(username);
-        setUsername("");
-        setPassword("");
-        console.log(password);
-        history.push('users/me');
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        try{
+            await userLogin(username, password);
+            localStorage.setItem("token", result.token);
+            setToken(result.token);
+            console.log("You're Logged In");
+            setUsername("");
+            setPassword("");
+            navigate('users/me');
+        }   catch (error) {
+            console.error("LogIn Falied:", error);
+        }
     };
 
     return (
@@ -88,19 +99,4 @@ export const userLogin = ({setToken}) => {
     );
 };
 
-
-
-export default userDataProfile = ({ token }) => {
-    const [userData, setUserData] = useState(null);
-    const [editPost, setEditPost] = useState(false);
-    const history = useHistory();
-
-    const handleClick = (event) => {
-        event.preventDefault();
-        setEditPost(true);
-    };
-
-    
-};
-
-//export default renderUsers;
+export default RenderUsers;

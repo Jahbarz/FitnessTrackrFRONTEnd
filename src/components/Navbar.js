@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-export const Navbar = ({ token, setToken }) => {
+const Navbar = ({ token, setToken }) => {
     const logOut = () => {
         localStorage.removeItem("token");
         window.location.replace('/Login');
+        console.log("Logged out");
     };
     return (
         <>
