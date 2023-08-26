@@ -9,10 +9,13 @@ const Navbar = ({ token, setToken }) => {
     };
     return (
         <>
-            <Link to="/Login">Login</Link>
+            { token ? null : <Link to="/Login">Login</Link>}
+            <Link to="/routines">Home</Link>
             <Link to="/Profile">Profile</Link>
-            <Link to="/Posts">Posts</Link>
-            <Link to="/Login" onClick={logOut}>logOut</Link>
+            {token ? (
+                <Link to="/Login" onClick={logOut}>logOut</Link>
+            ) : null}
+            
         </>
     );
 };

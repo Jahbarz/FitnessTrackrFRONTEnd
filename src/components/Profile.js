@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
     userData,
-    myData,
+    userRoutinesData,
+    getAllActivities,
     postNewActivity,
     updateActivity,
     postNewRoutine,
@@ -14,9 +15,12 @@ import {
 } from "../api";
 
 
-export const Profile = ({ token }) => {
-    const [userData, setUserData] = useState(null);
-    const [editPost, setEditPost] = useState(false);
+export const Profile = ({ token, user, setUser, userRoutines, setUserRoutines }) => {
+    //const [editPost, setEditPost] = useState(false);
+    const [username, setUsername] = useState("");
+    const [routineId, setRoutineId] = useState(null);
+    const [routineName, setRoutineName] = useState("");
+    const [activities, setActivities] =useState([]);
     const navigate = useNavigate();
 
     const handleClick = (event) => {
@@ -25,29 +29,37 @@ export const Profile = ({ token }) => {
     };
 
     useEffect(() => {
-        if (token) {
-            myData().then((data) => {
-                setUserData(data);
-            });
-        }   else {
-            setUserData(null);
-        }
-    }, [!token]);
+        getAllActivities(setActivities);
+    }, []);
 
     useEffect(() => {
-        if (userData) {
-            localStorage.setItem("userData", JSON.stringify(userData));
+        async function profileData() {
+            const user = await userData(token);
+            const routines = await userRoutinesData(user.username, token);
+            setUser(user.username);
+            setUserRoutines(routines);
         }
-    }, [userData]);
+        profileData()
+    }, []);
+
+    const handleSubmit = async() => {
+        event.preventDefault();
+        if (!update) {
+            const newRoutine = await postNewRoutine(user.username, token);
+            setUserRoutines((prevRoutines) => [...prevRoutines, newRoutine]);
+        }
+
+    };
 
     return (
         <div className="profile">
             {userData ? (
-                <div className="user-page">
-                    <h1>Welcome, {userData.username}!</h1>
-                    <p>Email: {userData.email}</p>
+                <div key={userData.id}>
+                    <h1>Welcome, {`${userData.username}`}!</h1>
                     <button onClick={handleClick}>Edit Profile</button>
+                    <button onClick={handleSubmit}> Create Routine</button>
                 </div>
+                
             ) : (
                 <p>Sign In to view your profile.</p>
             )}
